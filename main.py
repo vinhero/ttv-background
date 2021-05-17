@@ -158,9 +158,10 @@ class Plane:
 
             if is_still_visible:
                 # default forward - velocity added to position
+                # TODO: Needs / 1000
                 self.F_SPEED += self.ALIVE_ACCL
-                self.X_POS += math.cos(math.radians(self.DEGREE)) * self.F_SPEED * delta_time
-                self.Y_POS -= math.sin(math.radians(self.DEGREE)) * self.F_SPEED * delta_time
+                self.X_POS += math.cos(math.radians(self.DEGREE)) * self.F_SPEED * delta_time # needs / 1000
+                self.Y_POS -= math.sin(math.radians(self.DEGREE)) * self.F_SPEED * delta_time # needs / 1000
 
                 # default turning added to current degree
                 # self.DEGREE += self.TURNING_VEL * delta_time
