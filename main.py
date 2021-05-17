@@ -48,7 +48,6 @@ icon_img = pygame.transform.scale(icon_img, (icon_img_size_xy, icon_img_size_xy)
 pygame.display.set_icon(icon_img)
 
 background_img = pygame.image.load(settings["windows"]["start_window"]["background_img"]).convert_alpha(stream_display)
-#background_img = pygame.transform.scale(background_img, (WIDTH_WINDOW, HEIGHT_WINDOW))
 
 # #################################### Actor: PLANE #################################### #
 p_size_xy = settings["actors"]["plane"]["size"]
@@ -112,7 +111,6 @@ class Plane:
             else:
                 self.PLANE_IMG = plane_img_viewer.convert_alpha(stream_display).copy()
 
-
         self.FONT_SIZE = settings["actors"]["plane"]["font_size"]
         self.MAX_FONT_WIDTH = settings["actors"]["plane"]["font_width"]
         self.MAX_FONT_HEIGHT = settings["actors"]["plane"]["font_height"]
@@ -158,10 +156,9 @@ class Plane:
 
             if is_still_visible:
                 # default forward - velocity added to position
-                # TODO: Needs / 1000
                 self.F_SPEED += self.ALIVE_ACCL
-                self.X_POS += math.cos(math.radians(self.DEGREE)) * self.F_SPEED * delta_time # needs / 1000
-                self.Y_POS -= math.sin(math.radians(self.DEGREE)) * self.F_SPEED * delta_time # needs / 1000
+                self.X_POS += math.cos(math.radians(self.DEGREE)) * self.F_SPEED * delta_time
+                self.Y_POS -= math.sin(math.radians(self.DEGREE)) * self.F_SPEED * delta_time
 
                 # default turning added to current degree
                 # self.DEGREE += self.TURNING_VEL * delta_time
@@ -218,12 +215,12 @@ class BackGround:
         self.SPEED = 50
 
     def draw(self):
-        #self.DISPLAY.fill(self.BACKGROUND_COLOR)
         self.DISPLAY.blit(self.BACKGROUND_IMG, (self.POS_X, self.POS_Y))
 
     def behavior(self, delta_time):
 
-        if self.POS_X + self.SPEED * delta_time / 1000 > self.X_MAX or self.POS_X + self.SPEED * delta_time / 1000 < self.X_MIN:
+        if self.POS_X + self.SPEED * delta_time / 1000 > self.X_MAX \
+                or self.POS_X + self.SPEED * delta_time / 1000 < self.X_MIN:
             self.SPEED *= -1
 
         self.POS_X += self.SPEED * delta_time / 1000
@@ -248,6 +245,9 @@ class TTVBot:
         self.list_chatters_current = list()
 
         self.sock = socket.socket()
+
+        # 5 min in ms
+        self.PONGTIMER = 300000
 
         self.COUNTER = 0
 
@@ -284,6 +284,7 @@ class TTVBot:
 
     def send_pong(self):
         self.send(self.sock, "PONG tmi.twitch.tv")
+        self.PONGTIMER = 300000
 
     def recv(self, sock, buff_size):
         try:
@@ -334,6 +335,11 @@ class TTVBot:
             self.list_chatters_ignore.pop(len(self.list_chatters_ignore) - 1)
         self.send(self.sock, f"PART {self.channel}")
 
+        # leaves all current chats
+        self.send(self.sock, "JOIN 0")
+        # disconnects from twitch
+        self.send(self.sock, "QUIT")
+
         self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
         print(f"BOT: I left chat of {self.channel} and disconnected from Twitch.")
@@ -383,12 +389,12 @@ class Spawner:
 
     def delete_dead_planes(self):
         i_of_dead_plane = 0
-        for plane in self.LIST_OF_FLYING_PLANES:
-            if plane.DEAD:
+        for a_plane in self.LIST_OF_FLYING_PLANES:
+            if a_plane.DEAD:
                 self.LIST_OF_FLYING_PLANES.pop(i_of_dead_plane)
                 i_chatter = 0
-                for chatter in self.CHATTERS_WHICH_ARE_PILOTS:
-                    if plane.ACTUAL_USERNAME == chatter:
+                for a_chatter in self.CHATTERS_WHICH_ARE_PILOTS:
+                    if a_plane.ACTUAL_USERNAME == a_chatter:
                         self.CHATTERS_WHICH_ARE_PILOTS.pop(i_chatter)
                         break
                     else:
@@ -401,7 +407,7 @@ class Spawner:
         self.SPAWNTIMER = settings["actors"]["spawner"]["spawntimer_planes"]
 
 
-# #################################### initialization: SPAWNER #################################### #
+# #################################### initialization: BACKGROUND #################################### #
 Background = BackGround(stream_display)
 
 # #################################### initialization: SPAWNER #################################### #
@@ -416,10 +422,8 @@ twitch_bot.join_chat(THE_STREAMER)
 # #################################### New Thread: TwitchBot #################################### #
 def call_the_bot():
     url = f"https://tmi.twitch.tv/group/user/{THE_STREAMER}/chatters"
-    max_waiting_planes = settings["actors"]["spawner"]["max_waiting_planes"]
     while True:
         # Calls the TwitchBOT
-
         twitch_bot.get_the_special_ones(url)
         twitch_bot.get_chatter()
 
@@ -429,6 +433,24 @@ def call_the_bot():
 TTVBot_THREAD = threading.Thread(target=call_the_bot)
 TTVBot_THREAD.setDaemon(True)
 TTVBot_THREAD.start()
+
+print("""
+
+Verschieben:  
+"Windows-Taste" + "Shift" + "[PFEILTASTE]"
+
+Schließen:
+"Alt" + "F4"
+"ENTF"
+"BACKSLASH"
+"ESC"
+
+Der BOT trennt die Verbindung sobald das Programm sich schließt.
+Wenn du es zu schnell / oft hintereinander startest kommt es zu einem Fehler..
+einfach nochmal neustarten.
+
+""")
+
 
 # #################################### MAIN GAME LOOP #################################### #
 while running:
@@ -447,6 +469,10 @@ while running:
 
     # Draws the background-image
     Background(current_dt)
+
+    # lets Bot send a Pong every 5 min
+    if twitch_bot.PONGTIMER < 0:
+        twitch_bot.send_pong()
 
     # Collects Chatters from the Bot
     # TODO: FIX that MAX_WAITING_PLAYERS is pypassed if list_current_current is too big
@@ -470,6 +496,7 @@ while running:
             spawner.reset_spawntimer()
         elif len(spawner.PLANES_WAITLIST) == 0 and len(spawner.LIST_OF_FLYING_PLANES) < spawner.MAX_FLYING_PLANES:
             spawner.create_plane("   ", "EMPTY")
+            spawner.spawn_plane()
             spawner.reset_spawntimer()
 
     # Updates all PLANES
@@ -485,5 +512,6 @@ while running:
         spawner.delete_dead_planes()
 
     # needed
+    twitch_bot.PONGTIMER -= current_dt
     spawner.SPAWNTIMER -= current_dt
     pygame.display.update()
