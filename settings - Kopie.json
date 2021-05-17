@@ -1,0 +1,85 @@
+{
+  "streamer": "shroud",
+  "ignore_stream": "True",
+  "title": "PilotCeeBee - BackGround",
+  "windows": {
+    "icon": {
+      "img": "assets/window/icon.png",
+      "size": 32
+    },
+    "start_window": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 60,
+      "background_img": "assets/window/sky.png"
+    }
+  },
+  "actors": {
+    "plane": {
+      "size": 150,
+      "font_size": 22,
+      "font_width": 110,
+      "font_height": 90,
+      "lifespan": 4000,
+      "f_vel": 2,
+      "t_vel": 5,
+      "d_acc": 0,
+      "img_viewer": "assets/actors/plane/plane_blueBIG.png",
+      "img_vip": "assets/actors/plane/plane_pinkBIG.png",
+      "img_mod": "assets/actors/plane/plane_gruenBIG.png"
+    },
+    "spawner": {
+      "spawntimer_planes": 2000,
+      "max_flying_planes": 2,
+      "max_waiting_planes": 10,
+      "spawns": {
+        "spawn0": {
+          "x": -120,
+          "y": 900,
+          "a": 45,
+          "s": 2
+        },
+        "spawn1": {
+          "x": 840,
+          "y": 1200,
+          "a": 45,
+          "s": 3
+        },
+        "spawn2": {
+          "x": -120,
+          "y": 320,
+          "a": -45,
+          "s": 2
+        },
+        "spawn3": {
+          "x": 2040,
+          "y": 660,
+          "a": 135,
+          "s": 2
+        }
+      }
+    },
+    "plane_streamer": {
+      "size": 120,
+      "font_size": 18,
+      "font_width": 90,
+      "font_height": 90,
+      "lifespan": 4000,
+      "f_vel": 2,
+      "t_vel": 5,
+      "d_acc": 5,
+      "img_streamer": "assets/actors/plane/plane_redBIG.png"
+    }
+  },
+  "twitch_bot": {
+    "oauth": "oauth:XXXXXXXXXX",
+    "nick_name": "XXXXXXXX",
+    "adresse": "irc.chat.twitch.tv",
+    "port": 6667,
+    "ingore_list": [
+      "streamelements",
+      "nightbot",
+      "streamlabs"
+    ]
+  }
+}
