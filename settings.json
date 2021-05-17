@@ -1,5 +1,5 @@
 {
-  "streamer": "shroud",
+  "streamer": "[STREAMER_NAME]",
   "ignore_stream": "True",
   "title": "PilotCeeBee - BackGround",
   "windows": {
@@ -73,7 +73,7 @@
   },
   "twitch_bot": {
     "oauth": "oauth:XXXXXXXXXX",
-    "nick_name": "XXXXXXXX",
+    "nick_name": "[BOT_NAME]",
     "adresse": "irc.chat.twitch.tv",
     "port": 6667,
     "ingore_list": [
