@@ -513,6 +513,7 @@ while running:
         spawner.delete_dead_planes()
 
     # needed
+    # TODO: get these statements their own function
     twitch_bot.PONGTIMER -= current_dt
     spawner.SPAWNTIMER -= current_dt
     pygame.display.update()
