@@ -386,7 +386,8 @@ class Spawner:
     def spawn_plane(self):
         self.LIST_OF_FLYING_PLANES.append(self.PLANES_WAITLIST[0])
         self.PLANES_WAITLIST.pop(0)
-
+    
+    # TODO: Clean up this terrible method 
     def delete_dead_planes(self):
         i_of_dead_plane = 0
         for a_plane in self.LIST_OF_FLYING_PLANES:
